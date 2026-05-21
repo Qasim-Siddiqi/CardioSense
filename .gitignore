@@ -1,0 +1,23 @@
+# .NET
+**/bin/
+**/obj/
+*.user
+.vs/
+
+# NuGet
+*.nuget.cache
+project.nuget.cache
+project.assets.json
+
+# React
+node_modules/
+dist/
+
+# Python
+__pycache__/
+*.pyc
+*.cpython-*.pyc
+
+# VS
+*.vsidx
+*.suo
