@@ -18,6 +18,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 // Our services
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IHealthService, HealthService>(); 
 
 // JWT Authentication
 var jwtKey = builder.Configuration["Jwt:Key"]!;
