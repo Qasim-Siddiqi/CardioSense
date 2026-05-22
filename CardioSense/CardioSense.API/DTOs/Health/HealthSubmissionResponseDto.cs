@@ -19,4 +19,5 @@ public class HealthSubmissionResponseDto
     public string LLMAdvice { get; set; } = string.Empty;
     public string? DoctorNotes { get; set; }
     public DateTime CreatedAt { get; set; }
+    public string PatientNotes { get; set; } = string.Empty;
 }

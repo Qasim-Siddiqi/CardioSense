@@ -19,6 +19,7 @@ public class HealthSubmission
     public int Alco { get; set; }         // 0/1
     public int Active { get; set; }       // 0/1
     public float BMI { get; set; }
+    public string PatientNotes { get; set; } = string.Empty;
 
     // ML output
     public float RiskScore { get; set; }

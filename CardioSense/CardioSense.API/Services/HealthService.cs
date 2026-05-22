@@ -33,7 +33,8 @@ public class HealthService : IHealthService
             RiskLevel = "Low",  // replaced in Commit 6
             LLMAdvice = "",     // replaced in Commit 7
             DoctorNotes = null,
-            CreatedAt = DateTime.UtcNow
+            CreatedAt = DateTime.UtcNow,
+            PatientNotes = dto.PatientNotes ?? string.Empty
         };
 
         _db.HealthSubmissions.Add(submission);
@@ -70,6 +71,7 @@ public class HealthService : IHealthService
         RiskLevel = s.RiskLevel,
         LLMAdvice = s.LLMAdvice,
         DoctorNotes = s.DoctorNotes,
-        CreatedAt = s.CreatedAt
+        CreatedAt = s.CreatedAt,
+        PatientNotes = s.PatientNotes ?? string.Empty
     };
 }
