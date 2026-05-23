@@ -31,11 +31,44 @@ public class HealthController : ControllerBase
         return Ok(result);
     }
 
+    // Patient
     [HttpGet("my-submissions")]
     [Authorize(Roles = "Patient")]
     public async Task<IActionResult> GetMySubmissions()
     {
         var result = await _healthService.GetMySubmissionsAsync(GetUserId());
         return Ok(result);
+    }
+
+    // Doctor
+
+    [HttpGet("all")]
+    [Authorize(Roles = "Doctor")]
+    public async Task<IActionResult> GetAllSubmissions(
+        [FromQuery] string? riskLevel,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 10)
+    {
+        if (page < 1) page = 1;
+        if (pageSize < 1 || pageSize > 100) pageSize = 10;
+
+        var result = await _healthService.GetAllSubmissionsAsync(riskLevel, page, pageSize);
+        return Ok(result);
+    }
+
+    [HttpGet("{id:int}")]
+    [Authorize(Roles = "Doctor")]
+    public async Task<IActionResult> GetSubmissionById(int id)
+    {
+        var result = await _healthService.GetSubmissionByIdAsync(id);
+        return result is null ? NotFound() : Ok(result);
+    }
+
+    [HttpPut("{id:int}/notes")]
+    [Authorize(Roles = "Doctor")]
+    public async Task<IActionResult> AddNotes(int id, [FromBody] AddNotesDto dto)
+    {
+        var success = await _healthService.AddDoctorNotesAsync(id, dto.Notes);
+        return success ? Ok() : NotFound();
     }
 }

@@ -61,6 +61,47 @@ public class HealthService : IHealthService
         return submissions.Select(MapToDto).ToList();
     }
 
+    public async Task<PagedResultDto<HealthSubmissionResponseDto>> GetAllSubmissionsAsync(
+        string? riskLevel, int page, int pageSize)
+    {
+        var query = _db.HealthSubmissions.AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(riskLevel))
+            query = query.Where(s => s.RiskLevel == riskLevel);
+
+        var totalCount = await query.CountAsync();
+
+        var items = await query
+            .OrderByDescending(s => s.CreatedAt)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        return new PagedResultDto<HealthSubmissionResponseDto>
+        {
+            Items = items.Select(MapToDto).ToList(),
+            TotalCount = totalCount,
+            Page = page,
+            PageSize = pageSize
+        };
+    }
+
+    public async Task<HealthSubmissionResponseDto?> GetSubmissionByIdAsync(int id)
+    {
+        var submission = await _db.HealthSubmissions.FindAsync(id);
+        return submission is null ? null : MapToDto(submission);
+    }
+
+    public async Task<bool> AddDoctorNotesAsync(int id, string? notes)
+    {
+        var submission = await _db.HealthSubmissions.FindAsync(id);
+        if (submission is null) return false;
+
+        submission.DoctorNotes = notes;
+        await _db.SaveChangesAsync();
+        return true;
+    }
+
     private static HealthSubmissionResponseDto MapToDto(HealthSubmission s) => new()
     {
         Id = s.Id,
