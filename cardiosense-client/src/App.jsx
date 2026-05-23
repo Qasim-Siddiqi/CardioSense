@@ -1,122 +1,95 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import { BrowserRouter, Routes, Route, Navigate, Outlet } from "react-router-dom";
+import { useAuth } from "./context/AuthContext";
+import Login    from "./pages/Login";
+import Register from "./pages/Register";
 
-function App() {
-  const [count, setCount] = useState(0)
+// ─── Placeholder pages (commits 10–13 will replace these) ────────────────────
 
+function PlaceholderPage({ title, color = "cyan" }) {
+  const { logout, fullName, role } = useAuth();
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
-
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+    <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center gap-4">
+      <div className={`px-6 py-1.5 rounded-full text-xs font-medium bg-${color}-500/20 text-${color}-400 border border-${color}-500/30`}>
+        {role}
+      </div>
+      <h1 className="text-3xl font-bold text-white">{title}</h1>
+      <p className="text-slate-400 text-sm">Welcome, {fullName} — this page is coming in the next commit.</p>
+      <button
+        onClick={logout}
+        className="mt-4 px-5 py-2 rounded-xl text-sm font-medium bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition-colors"
+      >
+        Sign out
+      </button>
+    </div>
+  );
 }
 
-export default App
+// ─── Protected Route ─────────────────────────────────────────────────────────
+
+/**
+ * Wraps a group of routes that require authentication.
+ * Optionally restricts to a specific role ("Patient" | "Doctor").
+ *
+ * Usage:
+ *   <Route element={<ProtectedRoute />}>          ← any authenticated user
+ *   <Route element={<ProtectedRoute role="Doctor" />}>  ← Doctors only
+ */
+function ProtectedRoute({ role: requiredRole }) {
+  const { isAuthenticated, role } = useAuth();
+
+  // Not logged in → send to login
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  // Logged in but wrong role → send to their actual dashboard
+  if (requiredRole && role !== requiredRole) {
+    return <Navigate to={role === "Doctor" ? "/doctor/dashboard" : "/patient/dashboard"} replace />;
+  }
+
+  // All good — render child routes via <Outlet />
+  return <Outlet />;
+}
+
+// ─── App ─────────────────────────────────────────────────────────────────────
+
+export default function App() {
+  const { isAuthenticated, role } = useAuth();
+
+  return (
+    <BrowserRouter>
+      <Routes>
+
+        {/* Public routes */}
+        <Route path="/login"    element={<Login />} />
+        <Route path="/register" element={<Register />} />
+
+        {/* Patient-only routes */}
+        <Route element={<ProtectedRoute role="Patient" />}>
+          <Route path="/patient/dashboard" element={<PlaceholderPage title="Patient Dashboard" />} />
+          <Route path="/patient/submit"    element={<PlaceholderPage title="Health Form" />} />
+          <Route path="/patient/result"    element={<PlaceholderPage title="Result" />} />
+        </Route>
+
+        {/* Doctor-only routes */}
+        <Route element={<ProtectedRoute role="Doctor" />}>
+          <Route path="/doctor/dashboard" element={<PlaceholderPage title="Doctor Dashboard" color="violet" />} />
+        </Route>
+
+        {/* Root redirect — send to the right dashboard if logged in */}
+        <Route
+          path="/"
+          element={
+            isAuthenticated
+              ? <Navigate to={role === "Doctor" ? "/doctor/dashboard" : "/patient/dashboard"} replace />
+              : <Navigate to="/login" replace />
+          }
+        />
+
+        {/* Catch-all 404 */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+
+      </Routes>
+    </BrowserRouter>
+  );
+}
