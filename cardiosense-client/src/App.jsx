@@ -2,8 +2,10 @@ import { BrowserRouter, Routes, Route, Navigate, Outlet } from "react-router-dom
 import { useAuth } from "./context/AuthContext";
 import Login    from "./pages/Login";
 import Register from "./pages/Register";
+import HealthForm from "./pages/HealthForm";
+import ResultPage from "./pages/ResultPage";
 
-// ─── Placeholder pages (commits 10–13 will replace these) ────────────────────
+// ─── Placeholder pages (will be replaced in upcoming commits)
 
 function PlaceholderPage({ title, color = "cyan" }) {
   const { logout, fullName, role } = useAuth();
@@ -24,7 +26,7 @@ function PlaceholderPage({ title, color = "cyan" }) {
   );
 }
 
-// ─── Protected Route ─────────────────────────────────────────────────────────
+// Protected Route 
 
 /**
  * Wraps a group of routes that require authentication.
@@ -51,7 +53,7 @@ function ProtectedRoute({ role: requiredRole }) {
   return <Outlet />;
 }
 
-// ─── App ─────────────────────────────────────────────────────────────────────
+// App 
 
 export default function App() {
   const { isAuthenticated, role } = useAuth();
@@ -67,8 +69,15 @@ export default function App() {
         {/* Patient-only routes */}
         <Route element={<ProtectedRoute role="Patient" />}>
           <Route path="/patient/dashboard" element={<PlaceholderPage title="Patient Dashboard" />} />
-          <Route path="/patient/submit"    element={<PlaceholderPage title="Health Form" />} />
-          <Route path="/patient/result"    element={<PlaceholderPage title="Result" />} />
+          
+          {/* Real components mounted cleanly instead of the placeholders */}
+          <Route path="/form" element={<HealthForm />} />
+          <Route path="/result" element={<ResultPage />} />
+          <Route path="/result/:id" element={<ResultPage />} />
+          
+          {/* Keeping this if you still have links pointing to them elsewhere */}
+          <Route path="/patient/submit" element={<PlaceholderPage title="Health Form" />} />
+          <Route path="/patient/result" element={<PlaceholderPage title="Result" />} />
         </Route>
 
         {/* Doctor-only routes */}

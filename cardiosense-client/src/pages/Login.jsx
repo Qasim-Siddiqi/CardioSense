@@ -10,7 +10,7 @@ const FIELDS = [
 ];
 
 export default function Login() {
-  // ── State ──────────────────────────────────────────────────────────────────
+  // State 
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [errors, setErrors]     = useState({});   // field-level validation errors
   const [apiError, setApiError] = useState("");   // server / network error
@@ -19,7 +19,7 @@ export default function Login() {
   const { login: loginUser } = useAuth();
   const navigate = useNavigate();
 
-  // ── Handlers ───────────────────────────────────────────────────────────────
+  // Handlers
 
   // Single handler for all inputs — updates the right key in formData object
   function handleChange(e) {
@@ -70,7 +70,7 @@ export default function Login() {
     }
   }
 
-  // ── Render ─────────────────────────────────────────────────────────────────
+  // Render
   return (
     <div className="min-h-screen bg-slate-950 flex items-center justify-center px-4">
       {/* Card */}
@@ -141,7 +141,7 @@ export default function Login() {
   );
 }
 
-// ─── Sub-components ───────────────────────────────────────────────────────────
+// Sub-components
 
 /**
  * Reusable form field — accepts props, shows label + input + error.

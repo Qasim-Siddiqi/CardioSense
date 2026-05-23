@@ -12,7 +12,7 @@ const FIELDS = [
 ];
 
 export default function Register() {
-  // ── State ──────────────────────────────────────────────────────────────────
+  // State 
   const [formData, setFormData] = useState({
     fullName: "", email: "", password: "", confirm: "",
   });
@@ -23,7 +23,7 @@ export default function Register() {
   const { login: loginUser } = useAuth();
   const navigate = useNavigate();
 
-  // ── Handlers ───────────────────────────────────────────────────────────────
+  // Handlers 
 
   function handleChange(e) {
     const { name, value } = e.target;
@@ -85,7 +85,7 @@ export default function Register() {
     }
   }
 
-  // ── Render ─────────────────────────────────────────────────────────────────
+  // Render 
   return (
     <div className="min-h-screen bg-slate-950 flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-md">
@@ -144,7 +144,7 @@ export default function Register() {
   );
 }
 
-// ─── Sub-components ───────────────────────────────────────────────────────────
+// Sub-components
 
 function FormField({ name, label, type, placeholder, value, onChange, error }) {
   return (

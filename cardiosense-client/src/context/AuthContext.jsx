@@ -1,12 +1,12 @@
 import { createContext, useContext, useState, useEffect } from "react";
 
-// ─── Context ────────────────────────────────────────────────────────────────
+// Context 
 
 const AuthContext = createContext(null);
 
 const STORAGE_KEY = "cardiosense_auth";
 
-// ─── Provider ────────────────────────────────────────────────────────────────
+// Provider 
 
 /**
  * Wraps the whole app. Provides { user, login, logout, isAuthenticated }.
@@ -57,7 +57,7 @@ export function AuthProvider({ children }) {
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
-// ─── Hook ────────────────────────────────────────────────────────────────────
+// Hook
 
 /**
  * Custom hook — use inside any component to access auth state.
