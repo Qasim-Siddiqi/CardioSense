@@ -16,9 +16,16 @@ builder.Services.AddOpenApi();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+// Named HttpClient , base address pulled from appsettings
+builder.Services.AddHttpClient("PredictionClient", client =>
+{
+    client.BaseAddress = new Uri(builder.Configuration["PredictionServiceUrl"]!);
+});
+
 // Our services
 builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddScoped<IHealthService, HealthService>(); 
+builder.Services.AddScoped<IHealthService, HealthService>();
+builder.Services.AddScoped<IPredictionService, PredictionService>();
 
 // JWT Authentication
 var jwtKey = builder.Configuration["Jwt:Key"]!;
@@ -79,7 +86,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseCors("AllowReact");
-app.UseAuthentication();   // must come before UseAuthorization
+app.UseAuthentication();   
 app.UseAuthorization();
 app.MapControllers();
 

@@ -8,14 +8,18 @@ using Microsoft.EntityFrameworkCore;
 public class HealthService : IHealthService
 {
     private readonly AppDbContext _db;
+    private readonly IPredictionService _prediction;
 
-    public HealthService(AppDbContext db)
+    public HealthService(AppDbContext db, IPredictionService prediction)
     {
         _db = db;
+        _prediction = prediction;
     }
 
     public async Task<HealthSubmissionResponseDto> SubmitAsync(int userId, SubmitHealthDto dto)
     {
+        var (riskScore, riskLevel) = await _prediction.PredictAsync(dto);  
+
         var submission = new HealthSubmission
         {
             UserId = userId,
@@ -29,9 +33,9 @@ public class HealthService : IHealthService
             Alco = dto.Alco,
             Active = dto.Active,
             BMI = dto.BMI,
-            RiskScore = 0.0f,   // replaced in Commit 6
-            RiskLevel = "Low",  // replaced in Commit 6
-            LLMAdvice = "",     // replaced in Commit 7
+            RiskScore = riskScore,  
+            RiskLevel = riskLevel, 
+            LLMAdvice = "",          // replaced in Commit 7
             DoctorNotes = null,
             CreatedAt = DateTime.UtcNow,
             PatientNotes = dto.PatientNotes ?? string.Empty
