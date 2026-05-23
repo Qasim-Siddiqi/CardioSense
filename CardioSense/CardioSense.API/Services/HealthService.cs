@@ -9,16 +9,20 @@ public class HealthService : IHealthService
 {
     private readonly AppDbContext _db;
     private readonly IPredictionService _prediction;
+    private readonly ILLMService _llm;
 
-    public HealthService(AppDbContext db, IPredictionService prediction)
+    public HealthService(AppDbContext db, IPredictionService prediction, ILLMService llm)
     {
         _db = db;
         _prediction = prediction;
+        _llm = llm;
     }
 
     public async Task<HealthSubmissionResponseDto> SubmitAsync(int userId, SubmitHealthDto dto)
     {
-        var (riskScore, riskLevel) = await _prediction.PredictAsync(dto);  
+        var (riskScore, riskLevel) = await _prediction.PredictAsync(dto);
+
+        var advice = await _llm.GetAdvisoryAsync(dto, riskLevel, riskScore);
 
         var submission = new HealthSubmission
         {
@@ -34,8 +38,8 @@ public class HealthService : IHealthService
             Active = dto.Active,
             BMI = dto.BMI,
             RiskScore = riskScore,  
-            RiskLevel = riskLevel, 
-            LLMAdvice = "",          // replaced in Commit 7
+            RiskLevel = riskLevel,
+            LLMAdvice = advice,
             DoctorNotes = null,
             CreatedAt = DateTime.UtcNow,
             PatientNotes = dto.PatientNotes ?? string.Empty

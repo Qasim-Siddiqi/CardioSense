@@ -22,6 +22,17 @@ builder.Services.AddHttpClient("PredictionClient", client =>
     client.BaseAddress = new Uri(builder.Configuration["PredictionServiceUrl"]!);
 });
 
+builder.Services.AddHttpClient("LLMClient", client =>
+{
+    client.BaseAddress = new Uri(builder.Configuration["LLM:BaseUrl"]!);
+    // Set the auth header once on the named client — LLMService never touches it directly
+    client.DefaultRequestHeaders.Authorization =
+        new System.Net.Http.Headers.AuthenticationHeaderValue(
+            "Bearer", builder.Configuration["LLM:ApiKey"]);
+});
+
+builder.Services.AddScoped<ILLMService, LLMService>();
+
 // Our services
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IHealthService, HealthService>();
