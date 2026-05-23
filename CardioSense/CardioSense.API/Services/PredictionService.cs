@@ -23,7 +23,7 @@ public class PredictionService : IPredictionService
     {
         var payload = new PredictRequest
         {
-            Age = dto.Age*365, // model was trained on age in days
+            Age = dto.Age,
             Gender = dto.Gender,
             ApHi = dto.ApHi,
             ApLo = dto.ApLo,
@@ -69,6 +69,8 @@ public class PredictionService : IPredictionService
         public int Smoke { get; set; }
         public int Alco { get; set; }
         public int Active { get; set; }
+
+        [JsonPropertyName("bmi")]
         public float BMI { get; set; }
         public string Notes { get; set; } = string.Empty;
     }
