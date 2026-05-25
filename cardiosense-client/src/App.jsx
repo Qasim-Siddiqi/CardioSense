@@ -4,8 +4,9 @@ import Login    from "./pages/Login";
 import Register from "./pages/Register";
 import HealthForm from "./pages/HealthForm";
 import ResultPage from "./pages/ResultPage";
+import PatientDashboard from "./pages/PatientDashboard";
 
-// ─── Placeholder pages (will be replaced in upcoming commits)
+// Placeholder pages (will be replaced in upcoming commits)
 
 function PlaceholderPage({ title, color = "cyan" }) {
   const { logout, fullName, role } = useAuth();
@@ -68,8 +69,8 @@ export default function App() {
 
         {/* Patient-only routes */}
         <Route element={<ProtectedRoute role="Patient" />}>
-          <Route path="/patient/dashboard" element={<PlaceholderPage title="Patient Dashboard" />} />
-          
+          <Route path="/patient/dashboard" element={<PatientDashboard />} />      
+
           {/* Real components mounted cleanly instead of the placeholders */}
           <Route path="/form" element={<HealthForm />} />
           <Route path="/result" element={<ResultPage />} />

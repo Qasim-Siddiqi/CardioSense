@@ -123,4 +123,12 @@ public class HealthService : IHealthService
         CreatedAt = s.CreatedAt,
         PatientNotes = s.PatientNotes ?? string.Empty
     };
+
+    public async Task<HealthSubmissionResponseDto?> GetMySubmissionByIdAsync(int userId, int submissionId)
+    {
+        var submission = await _db.HealthSubmissions
+            .FirstOrDefaultAsync(s => s.Id == submissionId && s.UserId == userId);
+
+        return submission is null ? null : MapToDto(submission);
+    }
 }

@@ -14,4 +14,6 @@ public interface IHealthService
     Task<HealthSubmissionResponseDto?> GetSubmissionByIdAsync(int id);
 
     Task<bool> AddDoctorNotesAsync(int id, string? notes);
+
+    Task<HealthSubmissionResponseDto?> GetMySubmissionByIdAsync(int userId, int submissionId);
 }

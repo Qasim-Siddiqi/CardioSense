@@ -71,4 +71,12 @@ public class HealthController : ControllerBase
         var success = await _healthService.AddDoctorNotesAsync(id, dto.Notes);
         return success ? Ok() : NotFound();
     }
+
+    [HttpGet("my-submissions/{id:int}")]
+    [Authorize(Roles = "Patient")]
+    public async Task<IActionResult> GetMySubmissionById(int id)
+    {
+        var result = await _healthService.GetMySubmissionByIdAsync(GetUserId(), id);
+        return result is null ? NotFound() : Ok(result);
+    }
 }
