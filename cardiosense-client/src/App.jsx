@@ -5,6 +5,7 @@ import Register from "./pages/Register";
 import HealthForm from "./pages/HealthForm";
 import ResultPage from "./pages/ResultPage";
 import PatientDashboard from "./pages/PatientDashboard";
+import DoctorDashboard from './pages/DoctorDashboard';
 
 // Placeholder pages (will be replaced in upcoming commits)
 
@@ -83,7 +84,7 @@ export default function App() {
 
         {/* Doctor-only routes */}
         <Route element={<ProtectedRoute role="Doctor" />}>
-          <Route path="/doctor/dashboard" element={<PlaceholderPage title="Doctor Dashboard" color="violet" />} />
+            <Route path="/doctor/dashboard" element={<DoctorDashboard />} />
         </Route>
 
         {/* Root redirect — send to the right dashboard if logged in */}
