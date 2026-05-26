@@ -10,22 +10,19 @@ const FIELDS = [
 ];
 
 export default function Login() {
-  // State 
+  // State
   const [formData, setFormData] = useState({ email: "", password: "" });
-  const [errors, setErrors]     = useState({});   // field-level validation errors
-  const [apiError, setApiError] = useState("");   // server / network error
+  const [errors, setErrors]     = useState({});
+  const [apiError, setApiError] = useState("");
   const [loading, setLoading]   = useState(false);
 
   const { login: loginUser } = useAuth();
   const navigate = useNavigate();
 
   // Handlers
-
-  // Single handler for all inputs — updates the right key in formData object
   function handleChange(e) {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-    // Clear field error as user types
     if (errors[name]) setErrors((prev) => ({ ...prev, [name]: "" }));
     setApiError("");
   }
@@ -50,10 +47,9 @@ export default function Login() {
     setApiError("");
 
     try {
-      const authData = await login(formData);  // { token, role, fullName }
-      loginUser(authData);                     // store in context + localStorage
+      const authData = await login(formData);
+      loginUser(authData);
 
-      // Route based on role
       if (authData.role === "Doctor") {
         navigate("/doctor/dashboard");
       } else {
@@ -72,21 +68,21 @@ export default function Login() {
 
   // Render
   return (
-    <div className="min-h-screen bg-slate-950 flex items-center justify-center px-4">
+    <div className="min-h-screen bg-slate-950 flex items-center justify-center px-4 py-8">
       {/* Card */}
       <div className="w-full max-w-md">
 
         {/* Logo / heading */}
-        <div className="mb-8 text-center">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 mb-4">
+        <div className="mb-6 sm:mb-8 text-center">
+          <div className="inline-flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 mb-4">
             <HeartIcon />
           </div>
-          <h1 className="text-3xl font-bold text-white tracking-tight">CardioSense</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">CardioSense</h1>
           <p className="mt-1 text-slate-400 text-sm">Sign in to your account</p>
         </div>
 
         {/* Form card */}
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8 shadow-xl">
+        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 sm:p-8 shadow-xl">
 
           {/* API-level error banner */}
           {apiError && (
@@ -96,7 +92,6 @@ export default function Login() {
           )}
 
           <form onSubmit={handleSubmit} noValidate>
-            {/* Render fields from array — demonstrates list rendering + props */}
             {FIELDS.map((field) => (
               <FormField
                 key={field.name}
@@ -143,10 +138,6 @@ export default function Login() {
 
 // Sub-components
 
-/**
- * Reusable form field — accepts props, shows label + input + error.
- * Demonstrates: components, props pattern.
- */
 function FormField({ name, label, type, placeholder, value, onChange, error }) {
   return (
     <div className="mb-5">
@@ -171,7 +162,7 @@ function FormField({ name, label, type, placeholder, value, onChange, error }) {
 
 function HeartIcon() {
   return (
-    <svg className="w-7 h-7 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+    <svg className="w-6 h-6 sm:w-7 sm:h-7 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
       <path strokeLinecap="round" strokeLinejoin="round"
         d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
     </svg>

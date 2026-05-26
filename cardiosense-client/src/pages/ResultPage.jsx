@@ -13,6 +13,19 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { getMySubmissionById } from "../api/healthApi";
 import RiskBadge from "../components/RiskBadge";
 
+// Responsive hook
+function useIsMobile(breakpoint = 600) {
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < breakpoint);
+
+  useEffect(() => {
+    const handler = () => setIsMobile(window.innerWidth < breakpoint);
+    window.addEventListener("resize", handler);
+    return () => window.removeEventListener("resize", handler);
+  }, [breakpoint]);
+
+  return isMobile;
+}
+
 // helpers
 
 // Format ISO date string into readable form
@@ -122,6 +135,8 @@ export default function ResultPage() {
   const [loading, setLoading]       = useState(!submission);   // skip load if we already have data
   const [error, setError]           = useState("");
 
+  const isMobile = useIsMobile();
+
   // useEffect: runs after mount. Fetches from API only if router state was empty.
   useEffect(() => {
     if (submission) return;   // already have data — skip fetch
@@ -147,7 +162,7 @@ export default function ResultPage() {
     load();
   }, [id]); // dependency array — re-run if id changes
 
-  // Loading state 
+  // Loading state
   if (loading) {
     return (
       <PageShell>
@@ -169,7 +184,7 @@ export default function ResultPage() {
     );
   }
 
-  // Error state 
+  // Error state
 
   if (error) {
     return (
@@ -204,7 +219,16 @@ export default function ResultPage() {
     <PageShell>
 
       {/* ── Top bar ── */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 32 }}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          flexWrap: "wrap",           // wraps date below back button on very small screens
+          gap: "8px",
+          marginBottom: 32,
+        }}
+      >
         <BackButton navigate={navigate} />
         <span style={{ color: "#475569", fontSize: "0.8rem" }}>
           Submitted {formatDate(submission.createdAt)}
@@ -217,7 +241,7 @@ export default function ResultPage() {
           background: "rgba(255,255,255,0.03)",
           border: "1px solid rgba(148,163,184,0.1)",
           borderRadius: 20,
-          padding: "36px 32px",
+          padding: isMobile ? "24px 16px" : "36px 32px",
           textAlign: "center",
           marginBottom: 24,
         }}
@@ -237,13 +261,19 @@ export default function ResultPage() {
           background: "rgba(255,255,255,0.02)",
           border: "1px solid rgba(148,163,184,0.08)",
           borderRadius: 20,
-          padding: "28px 24px",
+          padding: isMobile ? "20px 14px" : "28px 24px",
           marginBottom: 24,
         }}
       >
         <SectionHeading>Your Health Profile</SectionHeading>
-        {/* Rendering an array of objects as a grid of pills */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12 }}>
+        {/* 3 cols on desktop, 2 cols on mobile — 10 pills fit cleanly in both */}
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: isMobile ? "repeat(2, 1fr)" : "repeat(3, 1fr)",
+            gap: 12,
+          }}
+        >
           {[
             { label: "Age",          value: `${submission.age} yrs`   },
             { label: "Gender",       value: genderLabel                },
@@ -268,7 +298,7 @@ export default function ResultPage() {
           background: "rgba(34,211,238,0.04)",
           border: "1px solid rgba(34,211,238,0.15)",
           borderRadius: 20,
-          padding: "28px 24px",
+          padding: isMobile ? "20px 14px" : "28px 24px",
           marginBottom: 24,
         }}
       >
@@ -322,7 +352,7 @@ export default function ResultPage() {
             background: "rgba(255,255,255,0.02)",
             border: "1px solid rgba(148,163,184,0.08)",
             borderRadius: 16,
-            padding: "20px 24px",
+            padding: isMobile ? "16px 14px" : "20px 24px",
             marginBottom: 24,
           }}
         >
@@ -340,7 +370,7 @@ export default function ResultPage() {
             background: "rgba(250,204,21,0.04)",
             border: "1px solid rgba(250,204,21,0.2)",
             borderRadius: 16,
-            padding: "20px 24px",
+            padding: isMobile ? "16px 14px" : "20px 24px",
             marginBottom: 24,
           }}
         >
@@ -352,7 +382,13 @@ export default function ResultPage() {
       )}
 
       {/* ── Actions ── */}
-      <div style={{ display: "flex", gap: 12 }}>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: isMobile ? "column" : "row",  // stack on mobile
+          gap: 12,
+        }}
+      >
         <button
           onClick={() => navigate("/form")}
           style={btnStyle("outline")}
@@ -371,16 +407,18 @@ export default function ResultPage() {
   );
 }
 
-// layout helpers 
+// layout helpers
 
 function PageShell({ children }) {
+  const isMobile = useIsMobile();
+
   return (
     <div
       style={{
         minHeight: "100vh",
         background: "linear-gradient(135deg, #020b18 0%, #051525 50%, #020d1f 100%)",
         fontFamily: "'DM Sans', sans-serif",
-        padding: "40px 16px 80px",
+        padding: isMobile ? "24px 12px 60px" : "40px 16px 80px",
       }}
     >
       <div

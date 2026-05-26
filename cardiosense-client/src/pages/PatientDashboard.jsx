@@ -2,10 +2,25 @@ import { useState, useEffect } from "react";
 import { getMySubmissions } from "../api/healthApi";
 import SubmissionCard from "../components/SubmissionCard";
 
+// Responsive hook
+function useIsMobile(breakpoint = 600) {
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < breakpoint);
+
+  useEffect(() => {
+    const handler = () => setIsMobile(window.innerWidth < breakpoint);
+    window.addEventListener("resize", handler);
+    return () => window.removeEventListener("resize", handler);
+  }, [breakpoint]);
+
+  return isMobile;
+}
+
 function PatientDashboard() {
   const [submissions, setSubmissions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  const isMobile = useIsMobile();
 
   // Fetch the patient's own submissions when the page loads
   useEffect(() => {
@@ -28,7 +43,15 @@ function PatientDashboard() {
     fetchSubmissions();
   }, []);
 
-  // Loading state 
+  // Responsive page style (padding shrinks on mobile)
+  const pageStyle = {
+    maxWidth: "620px",
+    margin: "0 auto",
+    padding: isMobile ? "24px 14px" : "40px 20px",
+    fontFamily: "'DM Sans', sans-serif",
+  };
+
+  // Loading state
   if (loading) {
     return (
       <div style={pageStyle}>
@@ -50,7 +73,7 @@ function PatientDashboard() {
     );
   }
 
-  // Empty state 
+  // Empty state
   if (submissions.length === 0) {
     return (
       <div style={pageStyle}>
@@ -83,7 +106,7 @@ function PatientDashboard() {
       </div>
 
       {/* Summary strip: counts per risk level */}
-      <RiskSummary submissions={submissions} />
+      <RiskSummary submissions={submissions} isMobile={isMobile} />
 
       {/* Card list */}
       <div>
@@ -96,7 +119,7 @@ function PatientDashboard() {
 }
 
 // Small helper component: risk level counts at the top
-function RiskSummary({ submissions }) {
+function RiskSummary({ submissions, isMobile }) {
   // Count how many of each risk level exist
   const counts = submissions.reduce(
     (acc, s) => {
@@ -110,14 +133,14 @@ function RiskSummary({ submissions }) {
     <div
       style={{
         display: "grid",
-        gridTemplateColumns: "1fr 1fr 1fr",
+        gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr 1fr",
         gap: "12px",
         marginBottom: "28px",
       }}
     >
-      <SummaryTile label="Low Risk" count={counts.Low} color="#22c55e" bg="#1e3a2f" />
+      <SummaryTile label="Low Risk"    count={counts.Low}    color="#22c55e" bg="#1e3a2f" />
       <SummaryTile label="Medium Risk" count={counts.Medium} color="#eab308" bg="#2d2a1a" />
-      <SummaryTile label="High Risk" count={counts.High} color="#ef4444" bg="#2d1f1f" />
+      <SummaryTile label="High Risk"   count={counts.High}   color="#ef4444" bg="#2d1f1f" />
     </div>
   );
 }
@@ -138,14 +161,7 @@ function SummaryTile({ label, count, color, bg }) {
   );
 }
 
-// Shared page-level styles
-const pageStyle = {
-  maxWidth: "620px",
-  margin: "0 auto",
-  padding: "40px 20px",
-  fontFamily: "'DM Sans', sans-serif",
-};
-
+// Shared page-level styles (non-responsive ones stay here)
 const headerStyle = {
   marginBottom: "28px",
 };

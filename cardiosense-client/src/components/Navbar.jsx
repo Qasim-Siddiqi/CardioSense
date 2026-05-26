@@ -1,133 +1,128 @@
-// Navbar.jsx
-// Concepts covered:
-//   useAuth()    — reading fullName, role, logout from context
-//   useNavigate  — programmatic navigation on sign out
-//   NavLink      — like <Link> but knows if its route is active (for highlight)
-//   props/state  — role decides which links render (conditional rendering)
-
+import { useState } from "react";
 import { useNavigate, NavLink } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 export default function Navbar() {
   const { fullName, role, logout } = useAuth();
   const navigate = useNavigate();
+  const [menuOpen, setMenuOpen] = useState(false);
 
   function handleLogout() {
-    logout();               // clears token + state in AuthContext
-    navigate("/login");     // send user to login page
+    logout();
+    navigate("/login");
   }
 
-  // Patient gets two links; Doctor gets one.
-  // This is just an array rendered with .map() — same pattern used elsewhere.
   const navLinks =
     role === "Patient"
       ? [
-          { label: "Dashboard",       to: "/patient/dashboard" },
-          { label: "New Submission",  to: "/form"              },
+          { label: "Dashboard",      to: "/patient/dashboard" },
+          { label: "New Submission", to: "/form"              },
         ]
       : [
           { label: "Dashboard", to: "/doctor/dashboard" },
         ];
 
   return (
-    <nav style={navStyle}>
-      <div style={innerStyle}>
+    <nav className="sticky top-0 z-50 border-b border-slate-700/20"
+         style={{ background: "rgba(11,17,32,0.85)", backdropFilter: "blur(12px)", fontFamily: "'DM Sans', sans-serif" }}>
 
-        {/* ── Logo ── */}
-        <div style={logoStyle} onClick={() => navigate("/")}>
-          <span style={{ color: "#22d3ee", fontSize: "1.3rem", lineHeight: 1 }}>♥</span>
-          <span style={{ color: "#e2e8f0", fontWeight: 700, fontSize: "1rem", letterSpacing: "-0.01em" }}>
-            CardioSense
-          </span>
+      {/* ── Main bar ── */}
+      <div className="max-w-[1100px] mx-auto px-6 h-[60px] flex items-center justify-between">
+
+        {/* Logo */}
+        <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate("/")}>
+          <span className="text-cyan-400 text-xl leading-none">♥</span>
+          <span className="text-slate-200 font-bold text-base tracking-tight">CardioSense</span>
         </div>
 
-        {/* ── Nav links ── */}
-        {/* NavLink's style prop accepts a function — React Router passes { isActive }
-            so we can style the active route differently without extra state */}
-        <div style={{ display: "flex", gap: 4 }}>
+        {/* ── Desktop nav links (hidden on mobile) ── */}
+        <div className="hidden md:flex gap-1">
           {navLinks.map(link => (
             <NavLink
               key={link.to}
               to={link.to}
-              style={({ isActive }) => ({
-                padding: "6px 14px",
-                borderRadius: 8,
-                fontSize: "0.875rem",
-                fontWeight: isActive ? 600 : 400,
-                color: isActive ? "#22d3ee" : "#94a3b8",
-                background: isActive ? "rgba(34,211,238,0.1)" : "transparent",
-                border: isActive ? "1px solid rgba(34,211,238,0.2)" : "1px solid transparent",
-                textDecoration: "none",
-                fontFamily: "'DM Sans', sans-serif",
-                transition: "all 0.15s",
-              })}
+              className={({ isActive }) =>
+                "px-[14px] py-[6px] rounded-lg text-sm no-underline transition-all duration-150 " +
+                (isActive
+                  ? "font-semibold text-cyan-400 bg-cyan-400/10 border border-cyan-400/20"
+                  : "font-normal text-slate-400 border border-transparent hover:text-slate-200")
+              }
             >
               {link.label}
             </NavLink>
           ))}
         </div>
 
-        {/* ── User info + Sign Out ── */}
-        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-
-          {/* Name + role badge stacked */}
-          <div style={{ textAlign: "right" }}>
-            <div style={{ color: "#e2e8f0", fontSize: "0.85rem", fontWeight: 600, lineHeight: 1.2 }}>
-              {fullName}
-            </div>
-            <div style={{ color: "#22d3ee", fontSize: "0.68rem", letterSpacing: "0.06em", textTransform: "uppercase" }}>
-              {role}
-            </div>
+        {/* ── Desktop: user info + sign out (hidden on mobile) ── */}
+        <div className="hidden md:flex items-center gap-[14px]">
+          <div className="text-right">
+            <div className="text-slate-200 text-[0.85rem] font-semibold leading-[1.2]">{fullName}</div>
+            <div className="text-cyan-400 text-[0.68rem] tracking-[0.06em] uppercase">{role}</div>
           </div>
-
-          <button onClick={handleLogout} style={signOutStyle}>
+          <button
+            onClick={handleLogout}
+            className="px-4 py-[7px] rounded-lg text-[0.8rem] font-semibold text-slate-400 bg-transparent border border-slate-400/20 cursor-pointer transition-all duration-150 hover:text-slate-200 hover:border-slate-400/40"
+          >
             Sign Out
           </button>
         </div>
 
+        {/* ── Mobile: hamburger button (hidden on desktop) ── */}
+        <button
+          className="md:hidden flex flex-col justify-center gap-[5px] p-2 cursor-pointer bg-transparent border-none"
+          onClick={() => setMenuOpen(prev => !prev)}
+          aria-label="Toggle menu"
+        >
+          {/* Three bars animate into X when open */}
+          <span className={`block w-5 h-0.5 bg-slate-300 transition-all duration-200 origin-center
+            ${menuOpen ? "rotate-45 translate-y-[7px]" : ""}`} />
+          <span className={`block w-5 h-0.5 bg-slate-300 transition-all duration-200
+            ${menuOpen ? "opacity-0" : ""}`} />
+          <span className={`block w-5 h-0.5 bg-slate-300 transition-all duration-200 origin-center
+            ${menuOpen ? "-rotate-45 -translate-y-[7px]" : ""}`} />
+        </button>
+
       </div>
+
+      {/* ── Mobile dropdown (shown only when menuOpen) ── */}
+      {menuOpen && (
+        <div className="md:hidden border-t border-slate-700/20 px-6 py-4 flex flex-col gap-2"
+             style={{ background: "rgba(11,17,32,0.97)" }}>
+
+          {/* Nav links */}
+          {navLinks.map(link => (
+            <NavLink
+              key={link.to}
+              to={link.to}
+              onClick={() => setMenuOpen(false)}
+              className={({ isActive }) =>
+                "px-3 py-2.5 rounded-lg text-sm no-underline transition-all duration-150 " +
+                (isActive
+                  ? "font-semibold text-cyan-400 bg-cyan-400/10 border border-cyan-400/20"
+                  : "font-normal text-slate-400 border border-transparent hover:text-slate-200")
+              }
+            >
+              {link.label}
+            </NavLink>
+          ))}
+
+          {/* Divider + user info + sign out */}
+          <div className="border-t border-slate-700/30 mt-2 pt-3 flex items-center justify-between">
+            <div>
+              <div className="text-slate-200 text-sm font-semibold leading-[1.2]">{fullName}</div>
+              <div className="text-cyan-400 text-[0.68rem] tracking-[0.06em] uppercase">{role}</div>
+            </div>
+            <button
+              onClick={handleLogout}
+              className="px-4 py-2 rounded-lg text-xs font-semibold text-slate-400 bg-transparent border border-slate-400/20 cursor-pointer transition-all duration-150 hover:text-slate-200"
+            >
+              Sign Out
+            </button>
+          </div>
+
+        </div>
+      )}
+
     </nav>
   );
 }
-
-// ── Styles ──
-
-const navStyle = {
-  position: "sticky",
-  top: 0,
-  zIndex: 50,
-  background: "rgba(11,17,32,0.85)",     // #0b1120 at 85% opacity
-  backdropFilter: "blur(12px)",           // frosted glass effect
-  borderBottom: "1px solid rgba(148,163,184,0.1)",
-  fontFamily: "'DM Sans', sans-serif",
-};
-
-const innerStyle = {
-  maxWidth: 1100,
-  margin: "0 auto",
-  padding: "0 24px",
-  height: 60,
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "space-between",
-};
-
-const logoStyle = {
-  display: "flex",
-  alignItems: "center",
-  gap: 8,
-  cursor: "pointer",
-};
-
-const signOutStyle = {
-  padding: "7px 16px",
-  borderRadius: 8,
-  fontSize: "0.8rem",
-  fontWeight: 600,
-  color: "#94a3b8",
-  background: "transparent",
-  border: "1px solid rgba(148,163,184,0.2)",
-  cursor: "pointer",
-  fontFamily: "'DM Sans', sans-serif",
-  transition: "all 0.15s",
-};

@@ -7,6 +7,19 @@ import {
 import RiskBadge from "../components/RiskBadge";
 import Pagination from "../components/Pagination";
 
+// Responsive hook 
+function useIsMobile(breakpoint = 600) {
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < breakpoint);
+
+  useEffect(() => {
+    const handler = () => setIsMobile(window.innerWidth < breakpoint);
+    window.addEventListener("resize", handler);
+    return () => window.removeEventListener("resize", handler);
+  }, [breakpoint]);
+
+  return isMobile;
+}
+
 // helpers
 
 function formatDate(iso) {
@@ -69,6 +82,7 @@ const td = {
   fontSize: "14px",
   fontFamily: "DM Sans, sans-serif",
   verticalAlign: "middle",
+  whiteSpace: "nowrap", // prevents text wrapping inside cells on small screens
 };
 
 // Modal
@@ -78,6 +92,8 @@ function SubmissionModal({ submission, onClose, onNotesSaved }) {
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState("");
   const [saved, setSaved] = useState(false);
+
+  const isMobile = useIsMobile();
 
   async function handleSaveNotes() {
     if (!notes.trim()) return;
@@ -144,7 +160,7 @@ function SubmissionModal({ submission, onClose, onNotesSaved }) {
         alignItems: "center",
         justifyContent: "center",
         zIndex: 1000,
-        padding: "20px",
+        padding: isMobile ? "12px" : "20px",
       }}
     >
       <div
@@ -156,7 +172,7 @@ function SubmissionModal({ submission, onClose, onNotesSaved }) {
           maxWidth: "620px",
           maxHeight: "90vh",
           overflowY: "auto",
-          padding: "28px",
+          padding: isMobile ? "18px 14px" : "28px",
           fontFamily: "DM Sans, sans-serif",
           position: "relative",
         }}
@@ -174,7 +190,7 @@ function SubmissionModal({ submission, onClose, onNotesSaved }) {
             <h2
               style={{
                 color: "#f1f5f9",
-                fontSize: "20px",
+                fontSize: isMobile ? "17px" : "20px",
                 fontWeight: "700",
                 margin: 0,
               }}
@@ -221,11 +237,11 @@ function SubmissionModal({ submission, onClose, onNotesSaved }) {
           </span>
         </div>
 
-        {/* Stats grid */}
+        {/* Stats grid — 3 cols on desktop, 2 cols on mobile */}
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(3, 1fr)",
+            gridTemplateColumns: isMobile ? "1fr 1fr" : "repeat(3, 1fr)",
             gap: "10px",
             marginBottom: "20px",
           }}
@@ -405,45 +421,31 @@ export default function DoctorDashboard() {
   const [error, setError] = useState("");
   const [selectedSubmission, setSelectedSubmission] = useState(null);
 
+  const isMobile = useIsMobile();
   const totalPages = Math.ceil(totalCount / PAGE_SIZE);
 
   useEffect(() => {
     fetchSubmissions();
   }, [page, riskFilter]);
 
-  //   async function fetchSubmissions() {
-  //     setLoading(true);
-  //     setError('');
-  //     try {
-  //       const levelParam = riskFilter === 'All' ? '' : riskFilter;
-  //       const data = await getAllSubmissions(levelParam, page, PAGE_SIZE);
-  //       setSubmissions(data.items);
-  //       setTotalCount(data.totalCount);
-  //     } catch {
-  //       setError('Failed to load submissions. Please try again.');
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   }
-
   async function fetchSubmissions() {
-  setLoading(true);
-  setError('');
-  try {
-    const params = { page, pageSize: PAGE_SIZE };
-    if (riskFilter !== 'All') params.riskLevel = riskFilter;
+    setLoading(true);
+    setError('');
+    try {
+      const params = { page, pageSize: PAGE_SIZE };
+      if (riskFilter !== 'All') params.riskLevel = riskFilter;
 
-    const response = await getAllSubmissions(params);  
-    const data = response.data;                        
-    setSubmissions(data.items);
-    setTotalCount(data.totalCount);
-  } catch (err) {
-    console.error('Fetch error:', err);
-    setError('Failed to load submissions. Please try again.');
-  } finally {
-    setLoading(false);
+      const response = await getAllSubmissions(params);
+      const data = response.data;
+      setSubmissions(data.items);
+      setTotalCount(data.totalCount);
+    } catch (err) {
+      console.error('Fetch error:', err);
+      setError('Failed to load submissions. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   }
-}
 
   function handleFilterChange(level) {
     setRiskFilter(level);
@@ -473,7 +475,7 @@ export default function DoctorDashboard() {
       style={{
         minHeight: "100vh",
         background: "#0b1120",
-        padding: "40px 24px",
+        padding: isMobile ? "24px 12px" : "40px 24px",
         fontFamily: "DM Sans, sans-serif",
       }}
     >
@@ -483,7 +485,7 @@ export default function DoctorDashboard() {
           <h1
             style={{
               color: "#f1f5f9",
-              fontSize: "26px",
+              fontSize: isMobile ? "22px" : "26px",
               fontWeight: "700",
               margin: "0 0 6px",
             }}
@@ -575,7 +577,7 @@ export default function DoctorDashboard() {
           </div>
         )}
 
-        {/* Table */}
+        {/* Table — wrapped in a scrollable container on mobile */}
         {!loading && !error && submissions.length > 0 && (
           <div
             style={{
@@ -583,9 +585,19 @@ export default function DoctorDashboard() {
               border: "1px solid #1e293b",
               borderRadius: "12px",
               overflow: "hidden",
+              // Horizontal scroll on mobile so columns never squish
+              overflowX: isMobile ? "auto" : "hidden",
+              WebkitOverflowScrolling: "touch", // smooth scroll on iOS
             }}
           >
-            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+            <table
+              style={{
+                width: "100%",
+                borderCollapse: "collapse",
+                // Prevent table from shrinking below its natural width
+                minWidth: isMobile ? "560px" : "unset",
+              }}
+            >
               <thead>
                 <tr
                   style={{
@@ -613,6 +625,7 @@ export default function DoctorDashboard() {
                         textTransform: "uppercase",
                         letterSpacing: "0.06em",
                         fontFamily: "DM Sans, sans-serif",
+                        whiteSpace: "nowrap",
                       }}
                     >
                       {h}

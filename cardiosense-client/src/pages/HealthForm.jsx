@@ -1,8 +1,21 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { submitHealth } from "../api/healthApi";
 
-// ─── tiny reusable sub-components (props, JSX) 
+// Responsive hook
+function useIsMobile(breakpoint = 600) {
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < breakpoint);
+
+  useEffect(() => {
+    const handler = () => setIsMobile(window.innerWidth < breakpoint);
+    window.addEventListener("resize", handler);
+    return () => window.removeEventListener("resize", handler);
+  }, [breakpoint]);
+
+  return isMobile;
+}
+
+// tiny reusable sub-components (props, JSX) 
 
 function Label({ children }) {
   return (
@@ -152,7 +165,7 @@ function SectionTitle({ children }) {
 
 const INITIAL = {
   age: "",
-  gender: 1,          // 1=male, 0=female (matches DTO comment — note: your DTO says 0=female,1=male)
+  gender: 1,          // 1=male, 0=female 
   apHi: "",
   apLo: "",
   cholesterol: 1,
@@ -174,6 +187,7 @@ export default function HealthForm() {
   const [error, setError]     = useState("");
 
   const navigate = useNavigate();
+  const isMobile = useIsMobile(); // ← responsive breakpoint at 600px
 
   // Generic field updater — merges new value into form state
   // This pattern keeps every input controlled with a single handler
@@ -243,7 +257,7 @@ export default function HealthForm() {
         minHeight: "100vh",
         background: "linear-gradient(135deg, #020b18 0%, #051525 50%, #020d1f 100%)",
         fontFamily: "'DM Sans', sans-serif",
-        padding: "40px 16px 80px",
+        padding: isMobile ? "24px 12px 60px" : "40px 16px 80px",
       }}
     >
       {/* Subtle background grid */}
@@ -260,7 +274,7 @@ export default function HealthForm() {
       <div style={{ position: "relative", zIndex: 1, maxWidth: 720, margin: "0 auto" }}>
 
         {/* Header */}
-        <div style={{ textAlign: "center", marginBottom: 40 }}>
+        <div style={{ textAlign: "center", marginBottom: isMobile ? 24 : 40 }}>
           <div
             style={{
               display: "inline-flex", alignItems: "center", justifyContent: "center",
@@ -296,14 +310,20 @@ export default function HealthForm() {
             background: "rgba(255,255,255,0.03)",
             border: "1px solid rgba(148,163,184,0.1)",
             borderRadius: 20,
-            padding: "36px 32px",
+            padding: isMobile ? "24px 16px" : "36px 32px",
             backdropFilter: "blur(10px)",
           }}
         >
           {/* ── Section: Basic Info ── */}
           <SectionTitle>Basic Information</SectionTitle>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20, marginBottom: 28 }}>
-
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr",
+              gap: isMobile ? 16 : 20,
+              marginBottom: 28,
+            }}
+          >
             <FieldWrap>
               <Label>Age (years)</Label>
               <NumInput
@@ -339,8 +359,14 @@ export default function HealthForm() {
 
           {/* ── Section: Blood Pressure ── */}
           <SectionTitle>Blood Pressure</SectionTitle>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20, marginBottom: 28 }}>
-
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr",
+              gap: isMobile ? 16 : 20,
+              marginBottom: 28,
+            }}
+          >
             <FieldWrap>
               <Label>Systolic (AP Hi)</Label>
               <NumInput
@@ -364,8 +390,14 @@ export default function HealthForm() {
 
           {/* ── Section: Lab Results ── */}
           <SectionTitle>Lab Results</SectionTitle>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20, marginBottom: 28 }}>
-
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr",
+              gap: isMobile ? 16 : 20,
+              marginBottom: 28,
+            }}
+          >
             <FieldWrap>
               <Label>Cholesterol Level</Label>
               <SelectInput
@@ -395,8 +427,14 @@ export default function HealthForm() {
 
           {/* ── Section: Lifestyle ── */}
           <SectionTitle>Lifestyle</SectionTitle>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 20, marginBottom: 28 }}>
-
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr 1fr",
+              gap: isMobile ? 16 : 20,
+              marginBottom: 28,
+            }}
+          >
             <FieldWrap>
               <Label>Smoking</Label>
               <ToggleGroup
@@ -498,5 +536,3 @@ export default function HealthForm() {
     </div>
   );
 }
-
-

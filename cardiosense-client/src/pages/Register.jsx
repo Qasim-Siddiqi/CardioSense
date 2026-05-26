@@ -5,14 +5,14 @@ import { useAuth } from "../context/AuthContext";
 
 // Field definitions as an array of objects — easy to extend
 const FIELDS = [
-  { name: "fullName", label: "Full name",    type: "text",     placeholder: "Ali Hassan" },
-  { name: "email",    label: "Email address",type: "email",    placeholder: "you@example.com" },
-  { name: "password", label: "Password",     type: "password", placeholder: "Min. 8 characters" },
-  { name: "confirm",  label: "Confirm password", type: "password", placeholder: "Repeat your password" },
+  { name: "fullName", label: "Full name",          type: "text",     placeholder: "Ali Hassan" },
+  { name: "email",    label: "Email address",       type: "email",    placeholder: "you@example.com" },
+  { name: "password", label: "Password",            type: "password", placeholder: "Min. 8 characters" },
+  { name: "confirm",  label: "Confirm password",    type: "password", placeholder: "Repeat your password" },
 ];
 
 export default function Register() {
-  // State 
+  // State
   const [formData, setFormData] = useState({
     fullName: "", email: "", password: "", confirm: "",
   });
@@ -23,7 +23,7 @@ export default function Register() {
   const { login: loginUser } = useAuth();
   const navigate = useNavigate();
 
-  // Handlers 
+  // Handlers
 
   function handleChange(e) {
     const { name, value } = e.target;
@@ -71,9 +71,9 @@ export default function Register() {
     try {
       // Send only the fields the API expects — exclude `confirm`
       const { confirm, ...payload } = formData;
-      const authData = await register(payload);  // { token, role, fullName }
+      const authData = await register(payload);   // { token, role, fullName }
       loginUser(authData);
-      navigate("/patient/dashboard");            // new users are always Patients
+      navigate("/patient/dashboard");             // new users are always Patients
     } catch (err) {
       const msg =
         err.response?.data?.message ||
@@ -85,22 +85,22 @@ export default function Register() {
     }
   }
 
-  // Render 
+  // Render
   return (
-    <div className="min-h-screen bg-slate-950 flex items-center justify-center px-4 py-12">
+    <div className="min-h-screen bg-slate-950 flex items-center justify-center px-4 py-8 sm:py-12">
       <div className="w-full max-w-md">
 
         {/* Heading */}
-        <div className="mb-8 text-center">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 mb-4">
+        <div className="mb-6 sm:mb-8 text-center">
+          <div className="inline-flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 mb-4">
             <HeartIcon />
           </div>
-          <h1 className="text-3xl font-bold text-white tracking-tight">Create account</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">Create account</h1>
           <p className="mt-1 text-slate-400 text-sm">Monitor your heart health with CardioSense</p>
         </div>
 
         {/* Card */}
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8 shadow-xl">
+        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 sm:p-8 shadow-xl">
 
           {apiError && (
             <div className="mb-5 bg-red-500/10 border border-red-500/30 rounded-lg px-4 py-3">
@@ -109,7 +109,7 @@ export default function Register() {
           )}
 
           <form onSubmit={handleSubmit} noValidate>
-            {/* Render all fields from the FIELDS array — list rendering */}
+            {/* Render all fields from the FIELDS array */}
             {FIELDS.map((field) => (
               <FormField
                 key={field.name}
@@ -200,7 +200,7 @@ function PasswordStrengthBar({ password }) {
           />
         ))}
       </div>
-      {/* Criteria pills */}
+      {/* Criteria pills — flex-wrap already handles small screens */}
       <div className="flex flex-wrap gap-1.5">
         {criteria.map((c) => (
           <span
@@ -223,7 +223,7 @@ function PasswordStrengthBar({ password }) {
 
 function HeartIcon() {
   return (
-    <svg className="w-7 h-7 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+    <svg className="w-6 h-6 sm:w-7 sm:h-7 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
       <path strokeLinecap="round" strokeLinejoin="round"
         d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
     </svg>
