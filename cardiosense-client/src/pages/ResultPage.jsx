@@ -354,13 +354,13 @@ export default function ResultPage() {
       {/* ── Actions ── */}
       <div style={{ display: "flex", gap: 12 }}>
         <button
-          onClick={() => navigate("/health-form")}
+          onClick={() => navigate("/form")}
           style={btnStyle("outline")}
         >
           New Assessment
         </button>
         <button
-          onClick={() => navigate("/dashboard")}
+          onClick={() => navigate("/patient/dashboard")}
           style={btnStyle("primary")}
         >
           View My History →
