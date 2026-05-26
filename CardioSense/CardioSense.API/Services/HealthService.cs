@@ -10,12 +10,15 @@ public class HealthService : IHealthService
     private readonly AppDbContext _db;
     private readonly IPredictionService _prediction;
     private readonly ILLMService _llm;
+    private readonly IEmailService _emailService;
 
-    public HealthService(AppDbContext db, IPredictionService prediction, ILLMService llm)
+
+    public HealthService(AppDbContext db, IPredictionService prediction, ILLMService llm, IEmailService emailService)
     {
         _db = db;
         _prediction = prediction;
         _llm = llm;
+        _emailService = emailService; 
     }
 
     public async Task<HealthSubmissionResponseDto> SubmitAsync(int userId, SubmitHealthDto dto)
@@ -92,16 +95,6 @@ public class HealthService : IHealthService
         return submission is null ? null : MapToDto(submission);
     }
 
-    public async Task<bool> AddDoctorNotesAsync(int id, string? notes)
-    {
-        var submission = await _db.HealthSubmissions.FindAsync(id);
-        if (submission is null) return false;
-
-        submission.DoctorNotes = notes;
-        await _db.SaveChangesAsync();
-        return true;
-    }
-
     private static HealthSubmissionResponseDto MapToDto(HealthSubmission s) => new()
     {
         Id = s.Id,
@@ -130,5 +123,25 @@ public class HealthService : IHealthService
             .FirstOrDefaultAsync(s => s.Id == submissionId && s.UserId == userId);
 
         return submission is null ? null : MapToDto(submission);
+    }
+
+    public async Task<bool> AddDoctorNotesAsync(int id, string? notes)
+    {
+        var submission = await _db.HealthSubmissions
+            .Include(s => s.User)
+            .FirstOrDefaultAsync(s => s.Id == id);
+
+        if (submission is null) return false;
+
+        submission.DoctorNotes = notes;
+        await _db.SaveChangesAsync();
+
+        _ = _emailService.SendAsync(
+            to: submission.User.Email,
+            subject: "Your CardioSense submission has been reviewed",
+            body: $"Hello {submission.User.FullName},\n\nYour doctor has reviewed your health submission and added notes.\n\nPlease log in to CardioSense to view them.\n\nCardioSense Team"
+        );
+
+        return true;
     }
 }

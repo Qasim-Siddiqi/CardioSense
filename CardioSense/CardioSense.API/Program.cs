@@ -37,6 +37,7 @@ builder.Services.AddScoped<ILLMService, LLMService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IHealthService, HealthService>();
 builder.Services.AddScoped<IPredictionService, PredictionService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 // JWT Authentication
 var jwtKey = builder.Configuration["Jwt:Key"]!;
