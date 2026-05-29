@@ -4,10 +4,10 @@ EXPOSE 8080
 
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
-COPY ["CardioSense.API/CardioSense.API.csproj", "CardioSense.API/"]
-RUN dotnet restore "CardioSense.API/CardioSense.API.csproj"
+COPY ["CardioSense/CardioSense.API/CardioSense.API.csproj", "CardioSense/CardioSense.API/"]
+RUN dotnet restore "CardioSense/CardioSense.API/CardioSense.API.csproj"
 COPY . .
-WORKDIR "/src/CardioSense.API"
+WORKDIR "/src/CardioSense/CardioSense.API"
 RUN dotnet publish -c Release -o /app/publish
 
 FROM base AS final
