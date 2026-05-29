@@ -92,7 +92,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowReact", policy =>
         policy.WithOrigins(
             "http://localhost:5173",
-            "https://cardiosense.vercel.app"  // update this after Vercel deployment
+            "https://cardiosense-five.vercel.app"
         )
               .AllowAnyHeader()
               .AllowAnyMethod());
