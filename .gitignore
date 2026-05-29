@@ -24,3 +24,5 @@ __pycache__/
 
 appsettings.json
 appsettings.*.json
+
+ml_service/.venv/
