@@ -21,3 +21,6 @@ __pycache__/
 # VS
 *.vsidx
 *.suo
+
+appsettings.json
+appsettings.*.json

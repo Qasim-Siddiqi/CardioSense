@@ -10,7 +10,36 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Services
 builder.Services.AddControllers();
-builder.Services.AddOpenApi();  
+
+//builder.Services.AddOpenApi();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = Microsoft.OpenApi.Models.SecuritySchemeType.Http,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+        Description = "Enter your JWT token here."
+    });
+
+    c.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+    {
+        {
+            new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+            {
+                Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                {
+                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
+});
 
 // Database
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -31,9 +60,8 @@ builder.Services.AddHttpClient("LLMClient", client =>
             "Bearer", builder.Configuration["LLM:ApiKey"]);
 });
 
+// Our Services
 builder.Services.AddScoped<ILLMService, LLMService>();
-
-// Our services
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IHealthService, HealthService>();
 builder.Services.AddScoped<IPredictionService, PredictionService>();
@@ -91,10 +119,12 @@ using (var scope = app.Services.CreateScope())
 }
 
 // Middleware Pipeline
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();  
-}
+//if (app.Environment.IsDevelopment())
+//{
+//    app.MapOpenApi();  
+//}
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 app.UseCors("AllowReact");
