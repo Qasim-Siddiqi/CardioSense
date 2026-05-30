@@ -136,18 +136,22 @@ public class HealthService : IHealthService
         submission.DoctorNotes = notes;
         await _db.SaveChangesAsync();
 
-        try
+        // Fire and forget — don't let email delay the response
+        _ = Task.Run(async () =>
         {
-            await _emailService.SendAsync(
-                to: submission.User.Email,
-                subject: "Your CardioSense submission has been reviewed",
-                body: $"Hello {submission.User.FullName},\n\nYour doctor has reviewed your health submission and added notes.\n\nPlease log in to CardioSense to view them.\n\nCardioSense Team"
-            );
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"[EMAIL ERROR] {ex.Message}");
-        }
+            try
+            {
+                await _emailService.SendAsync(
+                    to: submission.User.Email,
+                    subject: "Your CardioSense submission has been reviewed",
+                    body: $"Hello {submission.User.FullName},\n\nYour doctor has reviewed your health submission and added notes.\n\nPlease log in to CardioSense to view them.\n\nCardioSense Team"
+                );
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[EMAIL ERROR] {ex.Message}");
+            }
+        });
 
         return true;
     }
