@@ -46,7 +46,12 @@ function parseBullets(text) {
   if (!text) return [];
   return text
     .split(/\n/)
-    .map(line => line.replace(/^[-•]\s*/, "").trim())
+    .map(line => line
+      .replace(/^[-•*]\s*/, "")   // strip leading bullet chars
+      .replace(/\*\*(.*?)\*\*/g, "$1")  // strip **bold** markers
+      .replace(/\*(.*?)\*/g, "$1")      // strip *italic* markers
+      .trim()
+    )
     .filter(Boolean);
 }
 
