@@ -1,10 +1,11 @@
-using System.Text;
 using CardioSense.API.Data;
 using CardioSense.API.Models;
 using CardioSense.API.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Resend;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -65,7 +66,11 @@ builder.Services.AddScoped<ILLMService, LLMService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IHealthService, HealthService>();
 builder.Services.AddScoped<IPredictionService, PredictionService>();
-builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddResend(options =>
+{
+    options.ApiToken = builder.Configuration["RESEND_API_KEY"]!;
+});
+builder.Services.AddTransient<IEmailService, EmailService>();
 
 // JWT Authentication
 var jwtKey = builder.Configuration["Jwt:Key"]!;
