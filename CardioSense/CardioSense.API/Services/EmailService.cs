@@ -1,25 +1,29 @@
-﻿using Resend;
+﻿using System.Net;
+using System.Net.Mail;
 
 namespace CardioSense.API.Services
 {
     public class EmailService : IEmailService
     {
-        private readonly IResend _resend;
+        private readonly IConfiguration _config;
 
-        public EmailService(IResend resend)
+        public EmailService(IConfiguration config)
         {
-            _resend = resend;
+            _config = config;
         }
 
         public async Task SendAsync(string to, string subject, string body)
         {
-            var message = new EmailMessage();
-            message.From = "onboarding@resend.dev";
-            message.To.Add(to);
-            message.Subject = subject;
-            message.TextBody = body;
+            var section = _config.GetSection("Email");
 
-            await _resend.EmailSendAsync(message);
+            using var client = new SmtpClient(section["Host"], int.Parse(section["Port"]!))
+            {
+                Credentials = new NetworkCredential(section["Username"], section["Password"]),
+                EnableSsl = true
+            };
+
+            var message = new MailMessage(section["From"]!, to, subject, body);
+            await client.SendMailAsync(message);
         }
     }
 }
