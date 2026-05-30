@@ -14,7 +14,7 @@ A full-stack health application where patients submit their health profile and r
 |---|---|
 | Register | ![Register](screenshots/Register.png) |
 | Health Form | ![Health Form](screenshots/health-form.png) |
-| Risk Result + LLM Advisory | ![Result](screenshots/result.png) |
+| Risk Result + LLM Advisory | <img src="screenshots/result.png" width="300"/> |
 | Patient Dashboard | ![Patient Dashboard](screenshots/patient-dashboard.png) |
 | Doctor Dashboard | ![Doctor Dashboard](screenshots/doctor-dashboard.png) |
 | Swagger UI | ![Swagger](screenshots/swagger.png) |
